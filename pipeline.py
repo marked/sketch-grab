@@ -333,6 +333,29 @@ pipeline = Pipeline(
         id_function=stats_id_function,
     ),
     MoveFiles(),
+    LimitConcurrent(NumberConfigValue(min=1, max=20, default="20",
+        name="shared:rsync_threads", title="Rsync threads",
+        description="The maximum number of concurrent uploads."),
+        UploadWithTracker(
+            "http://%s/%s" % (TRACKER_HOST, TRACKER_ID),
+            downloader=downloader,
+            version=VERSION,
+            files=[
+                ItemInterpolation("%(data_dir)s/%(warc_file_base)s-deduplicated.warc.gz"),
+                ItemInterpolation("%(data_dir)s/%(warc_file_base)s_data.txt")
+            ],
+            rsync_target_source_path=ItemInterpolation("%(data_dir)s/"),
+            rsync_extra_args=[
+                "--sockopts=SO_SNDBUF=8388608,SO_RCVBUF=8388608", # 02:50 <Kenshin> the extra options should improve rsync speeds when the latency is higher
+                "--recursive",
+                "--partial",
+                "--partial-dir", ".rsync-tmp",
+                "--min-size", "1",
+                "--no-compress",
+                "--compress-level=0"
+            ]
+            ),
+    ),
     SendDoneToTracker(
         tracker_url='http://%s/%s' % (TRACKER_HOST, TRACKER_ID),
         stats=ItemValue('stats')
