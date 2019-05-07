@@ -300,7 +300,7 @@ class WgetArgs(object):
 project = Project(
     title='sketch',
     project_html='''
-        <img class="project-logo" alt="Project logo" src="https://www.archiveteam.org/images/b/b5/Sketch_logo.png" height="50px" title=""/>
+        <img class="project-logo" alt="Project logo" src="https://www.archiveteam.org/images/0/01/Sketch-logo.png" height="50px" title=""/>
         <h2>sketch.sonymobile.com <span class="links"><a href="https://sketch.sonymobile.com/">Website</a> &middot; <a href="http://%s/%s/">Leaderboard</a></span></h2>
         <p>Archiving everything from Sony Sketch.</p>
     ''' % (TRACKER_HOST, TRACKER_ID)
