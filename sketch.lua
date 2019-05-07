@@ -29,70 +29,18 @@ wget.callbacks.httploop_result = function(url, err, http_stat)
   io.stdout:write(url_count .. "=" .. status_code .. " " .. url["url"] .. "  \n")
   io.stdout:flush()
 
-  --# 300-399 -> skip further processing
-  if (status_code >= 300 and status_code <= 399) then
-    local newloc = string.match(http_stat["newloc"], "^([^#]+)")
-    if string.match(newloc, "^//") then
-      newloc = string.match(url["url"], "^(https?:)") .. string.match(newloc, "^//(.+)")
-    elseif string.match(newloc, "^/") then
-      newloc = string.match(url["url"], "^(https?://[^/]+)") .. newloc
-    elseif not string.match(newloc, "^https?://") then
-      newloc = string.match(url["url"], "^(https?://.+/)") .. newloc
-    end
-    if downloaded[newloc] == true or addedtolist[newloc] == true then
-      return wget.actions.EXIT
-    end
-  end
- 
-  --# 200-399 -> mark as downloaded
-  if (status_code >= 200 and status_code <= 399) then
-    downloaded[url["url"]] = true
-    downloaded[string.gsub(url["url"], "https?://", "http://")] = true
+  -- storage.sketch
+  if (string.match(url["url"], "https://storage.sketch.sonymobile.com/feed/") and status_code == 307) then
+    return wget.actions.NOTHING
   end
 
-  --# Abort now if prior set
-  if abortgrab == true then
-    io.stdout:write("ABORTING...\n")
-    return wget.actions.ABORT
-  end
-  
-  --# 0, 400's, 500's, but not 403, 404 -> sleep and retry
-  --# 404 is Not Found
-  --# 403 is Forbidden
-  if status_code >= 500
-      or (status_code >= 400 and status_code ~= 403 and status_code ~= 404)
-      or status_code  == 0 then
-    io.stdout:write("Server returned "..http_stat.statcode.." ("..err.."). Sleeping.\n")
-    io.stdout:flush()
-    local maxtries = 8
-    if not allowed(url["url"], nil) then
-        maxtries = 2
-    end
-    if tries > maxtries then
-      io.stdout:write("\nI give up...\n")
-      io.stdout:flush()
-      tries = 0
-      if allowed(url["url"], nil) then
-        return wget.actions.ABORT
-      else
-        return wget.actions.EXIT
-      end
-    else
-      os.execute("sleep " .. math.floor(math.pow(2, tries)))
-      tries = tries + 1
-      return wget.actions.CONTINUE
-    end
+  -- AWS S3
+  if (string.match(url["url"], "https://sketch-cloud-storage.s3.amazonaws.com/") and status_code == 200) then
+    return wget.actions.NOTHING
   end
 
-  tries = 0
-
-  local sleep_time = 0
-
-  if sleep_time > 0.001 then
-    os.execute("sleep " .. sleep_time)
-  end
-
-  return wget.actions.NOTHING
+  abortgrab = true
+  return wget.actions.ABORT
 end
 
 wget.callbacks.before_exit = function(exit_status, exit_status_string)
