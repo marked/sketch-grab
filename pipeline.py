@@ -260,7 +260,7 @@ class WgetArgs(object):
             '--warc-file', ItemInterpolation('%(item_dir)s/%(warc_file_base)s'),
             '--warc-header', 'operator: Archive Team',
             '--warc-header', 'sketch-dld-script-version: ' + VERSION,
-            #'--warc-header', ItemInterpolation('sketch-item: %(item_name)s')
+            '--warc-header', ItemInterpolation('sketches-created-on: %(item_value)s')
         ]
         
         item_name = item['item_name']
