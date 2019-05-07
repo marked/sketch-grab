@@ -29,6 +29,7 @@ wget.callbacks.httploop_result = function(url, err, http_stat)
   io.stdout:write(url_count .. "=" .. status_code .. " " .. url["url"] .. "  \n")
   io.stdout:flush()
 
+  --# 300-399 -> skip further processing
   if (status_code >= 300 and status_code <= 399) then
     local newloc = string.match(http_stat["newloc"], "^([^#]+)")
     if string.match(newloc, "^//") then
@@ -42,17 +43,22 @@ wget.callbacks.httploop_result = function(url, err, http_stat)
       return wget.actions.EXIT
     end
   end
-  
+ 
+  --# 200-399 -> mark as downloaded
   if (status_code >= 200 and status_code <= 399) then
     downloaded[url["url"]] = true
     downloaded[string.gsub(url["url"], "https?://", "http://")] = true
   end
 
+  --# Abort now if prior set
   if abortgrab == true then
     io.stdout:write("ABORTING...\n")
     return wget.actions.ABORT
   end
   
+  --# 0, 400's, 500's, but not 403, 404 -> sleep and retry
+  --# 404 is Not Found
+  --# 403 is Forbidden
   if status_code >= 500
       or (status_code >= 400 and status_code ~= 403 and status_code ~= 404)
       or status_code  == 0 then
