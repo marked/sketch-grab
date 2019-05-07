@@ -341,7 +341,7 @@ pipeline = Pipeline(
             downloader=downloader,
             version=VERSION,
             files=[
-                ItemInterpolation("%(data_dir)s/%(warc_file_base)s-deduplicated.warc.gz"),
+                ItemInterpolation("%(data_dir)s/%(warc_file_base)s.warc.gz"),
                 ItemInterpolation("%(data_dir)s/%(warc_file_base)s_data.txt")
             ],
             rsync_target_source_path=ItemInterpolation("%(data_dir)s/"),
