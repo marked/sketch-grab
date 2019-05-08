@@ -30,13 +30,13 @@ wget.callbacks.httploop_result = function(url, err, http_stat)
   io.stdout:flush()
 
   -- storage.sketch
-  if (string.match(url["url"], "https://storage.sketch.sonymobile.com/feed/") and status_code == 307) then
+  if (status_code == 307) then
     return wget.actions.NOTHING
   end
 
   -- AWS S3
-  if (string.match(url["url"], "https://sketch-cloud-storage.s3.amazonaws.com/") and status_code == 200) then
-    return wget.actions.NOTHING
+  if (status_code == 200) then
+    return wget.actions.EXIT
   end
 
   abortgrab = true
