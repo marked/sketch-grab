@@ -30,17 +30,17 @@ wget.callbacks.httploop_result = function(url, err, http_stat)
   io.stdout:flush()
 
   -- storage.sketch
-  if (status_code == 307) then
+  if (string.match(url["host"], "^storage\.sketch\.sonymobile\.com") and status_code == 307) then
     return wget.actions.NOTHING
   end
 
   -- storage.sketch
-  if (status_code == 404) then
+  if (string.match(url["host"], "^storage\.sketch\.sonymobile\.com") and status_code == 404) then
     return wget.actions.EXIT
   end
 
   -- AWS S3
-  if (status_code == 200) then
+  if (string.match(url["host"], "^sketch[-]cloud[-]storage\.s3\.amazonaws\.com") and status_code == 200) then
     return wget.actions.EXIT
   end
 
