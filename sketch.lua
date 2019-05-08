@@ -34,6 +34,11 @@ wget.callbacks.httploop_result = function(url, err, http_stat)
     return wget.actions.NOTHING
   end
 
+  -- storage.sketch
+  if (status_code == 404) then
+    return wget.actions.EXIT
+  end
+
   -- AWS S3
   if (status_code == 200) then
     return wget.actions.EXIT
