@@ -35,7 +35,7 @@ wget.callbacks.httploop_result = function(url, err, http_stat)
   if (string.match(url["host"], "^storage%.sketch%.sonymobile%.com") and status_code == 307) or 
      (string.match(url["host"], "^storage%.sketch%.sonymobile%.com") and status_code == 404) or
      (string.match(url["host"], "^sketch[-]cloud[-]storage%.s3%.amazonaws%.com") and status_code == 200) then
-    resp_codes_file:write(url["url"] .. ":" .. status_code .. "\n")
+    resp_codes_file:write(status_code .. " " .. url["url"] .. "\n")
     return wget.actions.NOTHING
   end
 
@@ -47,8 +47,9 @@ end
 -----------------------------------------------------------------------------------------------------------------------
 
 wget.callbacks.before_exit = function(exit_status, exit_status_string)
-  resp_codes_file_file:close()
-  table.show(code_counts)
+  resp_codes_file:close()
+  io.stdout:write(table.show(code_counts,'\nResponse Code Frequency'))
+  io.stdout:flush()
   if abortgrab == true then
     return wget.exits.IO_FAIL
   end
