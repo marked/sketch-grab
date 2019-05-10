@@ -69,11 +69,11 @@ if not WGET_LUA:
 #
 # Update this each time you make a non-cosmetic change.
 # It will be added to the WARC files and reported to the tracker.
-VERSION = '20190505.01'
+VERSION = '20190508.01'
 USER_AGENT = 'ArchiveTeam'
-TRACKER_ID = 'sketch'
-TRACKER_HOST = 'tracker-test.ddns.net'
-
+TRACKER_ID = 'sketch-static'
+#TRACKER_HOST = 'tracker-test.ddns.net'
+TRACKER_HOST = 'localhost'
 
 ###########################################################################
 # This section defines project-specific tasks.
@@ -271,7 +271,7 @@ class WgetArgs(object):
 
         http_client = httpclient.HTTPClient()
 
-        if item_type == 'sketches':
+        if item_type == 'sketches' or item_type == 'tests':
             r = http_client.fetch('https://raw.githubusercontent.com/marked/sketch-items/master/' + item_type + "/" + item_value, method='GET')
             for s in r.body.decode('utf-8', 'ignore').splitlines():
                 s = s.strip()
