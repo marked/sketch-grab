@@ -220,7 +220,7 @@ def get_hash(filename):
 
 CWD = os.getcwd()
 PIPELINE_SHA1 = get_hash(os.path.join(CWD, 'pipeline.py'))
-LUA_SHA1 = get_hash(os.path.join(CWD, 'sketch.lua'))
+LUA_SHA1 = get_hash(os.path.join(CWD, 'sketch-static.lua'))
 
 
 def stats_id_function(item):
@@ -242,7 +242,7 @@ class WgetArgs(object):
             WGET_LUA,
             '-U', USER_AGENT,
             '-nv',
-            '--lua-script', 'sketch.lua',
+            '--lua-script', 'sketch-static.lua',
             '-o', ItemInterpolation('%(item_dir)s/wget.log'),
             '--no-check-certificate',
             '--output-document', ItemInterpolation('%(item_dir)s/wget.tmp'),
