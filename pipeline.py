@@ -36,7 +36,7 @@ from tornado import httpclient
 
 
 # check the seesaw version
-if StrictVersion(seesaw.__version__) < StrictVersion('0.8.5'):
+if StrictVersion(seesaw.__version__) < StrictVersion('0.10.3'):
     raise Exception('This pipeline needs seesaw version 0.8.5 or higher.')
 
 
