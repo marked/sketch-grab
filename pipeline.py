@@ -73,7 +73,7 @@ VERSION = '20190508.01'
 USER_AGENT = 'ArchiveTeam'
 TRACKER_ID = 'sketch-static'
 #TRACKER_HOST = 'tracker-test.ddns.net'
-TRACKER_HOST = 'localhost'
+TRACKER_HOST = "127.0.0.1"
 
 ###########################################################################
 # This section defines project-specific tasks.
@@ -319,7 +319,8 @@ pipeline = Pipeline(
             'item_dir': ItemValue('item_dir'),
             'item_value': ItemValue('item_value'),
             'item_type': ItemValue('item_type'),
-            'warc_file_base': ItemValue('warc_file_base')
+            'warc_file_base': ItemValue('warc_file_base'),
+            'tracker_host': TRACKER_HOST
         }
     ),
     PrepareStatsForTracker(
