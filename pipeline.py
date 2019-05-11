@@ -36,7 +36,7 @@ from tornado import httpclient
 
 
 # check the seesaw version
-if StrictVersion(seesaw.__version__) < StrictVersion('0.8.5'):
+if StrictVersion(seesaw.__version__) < StrictVersion('0.10.3'):
     raise Exception('This pipeline needs seesaw version 0.8.5 or higher.')
 
 
@@ -69,11 +69,11 @@ if not WGET_LUA:
 #
 # Update this each time you make a non-cosmetic change.
 # It will be added to the WARC files and reported to the tracker.
-VERSION = '20190506.01'
+VERSION = '20190508.01'
 USER_AGENT = 'ArchiveTeam'
-TRACKER_ID = 'sketch'
-TRACKER_HOST = 'tracker.archiveteam.org'
-
+TRACKER_ID = 'sketch-static'
+#TRACKER_HOST = 'tracker-test.ddns.net'
+TRACKER_HOST = 'localhost'
 
 ###########################################################################
 # This section defines project-specific tasks.
@@ -220,7 +220,7 @@ def get_hash(filename):
 
 CWD = os.getcwd()
 PIPELINE_SHA1 = get_hash(os.path.join(CWD, 'pipeline.py'))
-LUA_SHA1 = get_hash(os.path.join(CWD, 'sketch.lua'))
+LUA_SHA1 = get_hash(os.path.join(CWD, 'sketch-static.lua'))
 
 
 def stats_id_function(item):
@@ -242,7 +242,7 @@ class WgetArgs(object):
             WGET_LUA,
             '-U', USER_AGENT,
             '-nv',
-            '--lua-script', 'sketch.lua',
+            '--lua-script', 'sketch-static.lua',
             '-o', ItemInterpolation('%(item_dir)s/wget.log'),
             '--no-check-certificate',
             '--output-document', ItemInterpolation('%(item_dir)s/wget.tmp'),
@@ -260,7 +260,7 @@ class WgetArgs(object):
             '--warc-file', ItemInterpolation('%(item_dir)s/%(warc_file_base)s'),
             '--warc-header', 'operator: Archive Team',
             '--warc-header', 'sketch-dld-script-version: ' + VERSION,
-            #'--warc-header', ItemInterpolation('sketch-item: %(item_name)s')
+            '--warc-header', ItemInterpolation('sketches-created-on: %(item_value)s')
         ]
         
         item_name = item['item_name']
@@ -271,7 +271,7 @@ class WgetArgs(object):
 
         http_client = httpclient.HTTPClient()
 
-        if item_type == 'sketches':
+        if item_type == 'sketches' or item_type == 'tests':
             r = http_client.fetch('https://raw.githubusercontent.com/marked/sketch-items/master/' + item_type + "/" + item_value, method='GET')
             for s in r.body.decode('utf-8', 'ignore').splitlines():
                 s = s.strip()
@@ -300,10 +300,10 @@ class WgetArgs(object):
 project = Project(
     title='sketch',
     project_html='''
-        <img class="project-logo" alt="Project logo" src="https://www.archiveteam.org/images/b/b5/Sketch_logo.png" height="50px" title=""/>
-        <h2>sketch.sonymobile.com <span class="links"><a href="https://sketch.sonymobile.com/">Website</a> &middot; <a href="https://tracker.archiveteam.com/sketch/">Leaderboard</a></span></h2>
+        <img class="project-logo" alt="Project logo" src="https://www.archiveteam.org/images/0/01/Sketch-logo.png" height="50px" title=""/>
+        <h2>sketch.sonymobile.com <span class="links"><a href="https://sketch.sonymobile.com/">Website</a> &middot; <a href="http://%s/%s/">Leaderboard</a></span></h2>
         <p>Archiving everything from Sony Sketch.</p>
-    '''
+    ''' % (TRACKER_HOST, TRACKER_ID)
 )
 
 pipeline = Pipeline(
@@ -313,7 +313,7 @@ pipeline = Pipeline(
     PrepareDirectories(warc_prefix='sketch'),
     WgetDownload(
         WgetArgs(),
-        max_tries=2,
+        max_tries=1,
         accept_on_exit_code=[0, 4, 8],
         env={
             'item_dir': ItemValue('item_dir'),
@@ -341,7 +341,7 @@ pipeline = Pipeline(
             downloader=downloader,
             version=VERSION,
             files=[
-                ItemInterpolation("%(data_dir)s/%(warc_file_base)s-deduplicated.warc.gz"),
+                ItemInterpolation("%(data_dir)s/%(warc_file_base)s.warc.gz"),
                 ItemInterpolation("%(data_dir)s/%(warc_file_base)s_data.txt")
             ],
             rsync_target_source_path=ItemInterpolation("%(data_dir)s/"),
